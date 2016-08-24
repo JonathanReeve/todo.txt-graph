@@ -95,8 +95,13 @@ def print_blocks(label, count, step):
 
     c = Colors()
 
+    if count == 0: 
+        blocks = 1 # show something, at least
+
     for i in range(blocks):
-        if count >= threshold:
+        if count ==0: 
+            sys.stdout.write(c.red(TICK_CHAR))
+        elif count >= threshold:
             sys.stdout.write(c.green(TICK_CHAR))
         else:
             sys.stdout.write(c.light_gray(TICK_CHAR))
@@ -118,6 +123,10 @@ def main(directory, cutoffDays = 7):
     today = datetime.datetime.today()
     cutoff =  today - datetime.timedelta(days=cutoffDays)
     dic = {}
+
+    # Populate dic with blank entries first. 
+    for i in range(cutoffDays): 
+        dic[str((cutoff + datetime.timedelta(days=i)).date())] = 0
 
     for line in lines:
         m = re.match("x ([\d]{4}-[\d]{2}-[\d]{2}).*", line)
