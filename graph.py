@@ -125,7 +125,7 @@ def main(directory, cutoffDays = 7):
     dic = {}
 
     # Populate dic with blank entries first. 
-    for i in range(cutoffDays): 
+    for i in range(cutoffDays+1): 
         dic[str((cutoff + datetime.timedelta(days=i)).date())] = 0
 
     for line in lines:
