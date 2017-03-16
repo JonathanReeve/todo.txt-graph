@@ -30,6 +30,7 @@ TICK_CHAR = '■'
 DEFAULT_THRESHOLD = 2 # grey bar < DEFAULT_THRESHOLD >= green bar
 WIDTH = 60 # Graph width
 DONE = "done.txt"
+TODO = "todo.txt"
 
 # try to use xrange, which is faster
 try:
@@ -89,7 +90,10 @@ class Colors(object):
 # Graph based on:
 # https://github.com/mkaz/termgraph/blob/master/termgraph.py
 def print_blocks(label, count, step):
-    blocks = int(count / step)
+    # when nothing has been done, step equals 0 so the number
+    # of blocks/ticks can't be computed but also doesn't
+    # matter, hence set blocks = 0 in that case.
+    blocks = int(count / step) if step > 0 else 0
     print("{}: ".format(label), end="")
     threshold = int(os.getenv('TODOTXT_GRAPH_THRESHOLD', DEFAULT_THRESHOLD))
 
@@ -114,15 +118,25 @@ def print_blocks(label, count, step):
     else:
         print("{:>4.0f}".format(count))
 
+# Initialize dictionary with all days to also display days
+# where no tasks were completed
+def initialize_dic(cutoffDays = 7):
+    base = datetime.datetime.today().date()
+    dic = {(base - datetime.timedelta(days=x)).isoformat() : 0
+           for x in range(0, cutoffDays)}
+    return dic
 
 # Based on Lately Addon:
 # https://github.com/emilerl/emilerl/tree/master/todo.actions.d
 def main(directory, cutoffDays = 7):
-    f = open(os.path.join(directory, DONE), 'r')
-    lines = f.readlines()
+    lines = []
+    files = [DONE, TODO]
+    for filename in files:
+        with open(os.path.join(directory, filename), 'r') as f:
+            lines.extend(f.readlines())
     today = datetime.datetime.today()
     cutoff =  today - datetime.timedelta(days=cutoffDays)
-    dic = {}
+    dic = initialize_dic(cutoffDays)
 
     # Populate dic with blank entries first. 
     for i in range(cutoffDays+1): 
